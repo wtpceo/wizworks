@@ -5,17 +5,26 @@ import { Download, FileText } from "lucide-react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
-interface ProposalSection {
+interface ChartData {
+  type: "bar" | "pie" | "line";
+  data: Array<{ name: string; value: number }>;
+  title: string;
+}
+
+interface Slide {
+  slideNumber: number;
+  type: string;
   heading: string;
-  content: string;
+  content: string | string[];
+  imageKeyword?: string;
+  chartData?: ChartData;
 }
 
 interface Proposal {
   title: string;
-  sections: ProposalSection[];
-  executiveSummary: string;
-  timeline: string;
-  budget: string;
+  subtitle: string;
+  coverImage: string;
+  slides: Slide[];
 }
 
 interface ProposalDownloadProps {
@@ -33,7 +42,21 @@ export default function ProposalDownload({
     const now = new Date();
     const dateStr = now.toISOString().split("T")[0];
     const timeStr = now.toTimeString().split(" ")[0].replace(/:/g, "-");
-    return `제안서-${dateStr}-${timeStr}.${extension}`;
+    return `제안서-${proposal.title}-${dateStr}-${timeStr}.${extension}`;
+  };
+
+  const getSlideIcon = (type: string) => {
+    const icons: { [key: string]: string } = {
+      title: "🎯",
+      content: "📋",
+      "image-content": "💡",
+      chart: "📊",
+      timeline: "📅",
+      budget: "💰",
+      team: "👥",
+      closing: "✨",
+    };
+    return icons[type] || "▶️";
   };
 
   const downloadHTML = () => {
@@ -52,143 +75,288 @@ export default function ProposalDownload({
         }
         body {
             font-family: 'Segoe UI', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 40px;
-            color: #333;
-            line-height: 1.8;
+            background: #f3f4f6;
+            padding: 20px;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .slide {
+            width: 1200px;
+            height: 675px;
+            margin: 20px auto;
             background: white;
-            border-radius: 20px;
-            padding: 60px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            page-break-after: always;
+            position: relative;
+            overflow: hidden;
         }
-        .header {
+        .gradient-marketing {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .gradient-creative {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .slide-number {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .title-slide {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            margin-bottom: 60px;
-            padding-bottom: 30px;
-            border-bottom: 3px solid #667eea;
+            padding: 80px;
+            color: white;
+            position: relative;
         }
-        .header h1 {
-            font-size: 48px;
+        .title-slide .icon {
+            font-size: 120px;
+            margin-bottom: 30px;
+        }
+        .title-slide h1 {
+            font-size: 72px;
+            font-weight: 900;
+            margin-bottom: 30px;
+        }
+        .title-slide p {
+            font-size: 36px;
+            margin-bottom: 60px;
+            opacity: 0.9;
+        }
+        .title-slide .divider {
+            width: 120px;
+            height: 4px;
+            background: rgba(255,255,255,0.5);
+            margin: 0 auto 30px;
+        }
+        .content-slide {
+            padding: 80px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+        }
+        .content-slide .header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 60px;
+        }
+        .content-slide .icon {
+            font-size: 64px;
+        }
+        .content-slide h2 {
+            font-size: 56px;
             font-weight: 900;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 15px;
         }
-        .header p {
-            color: #666;
-            font-size: 16px;
+        .bullet-item {
+            display: flex;
+            align-items: start;
+            gap: 24px;
+            padding: 24px;
+            margin-bottom: 24px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
-        .section {
-            margin: 40px 0;
-            padding: 30px;
-            border-radius: 15px;
-        }
-        .section h2 {
-            font-size: 28px;
-            margin-bottom: 20px;
-            color: #667eea;
+        .bullet-number {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-        .section p, .section div {
-            font-size: 16px;
-            line-height: 1.8;
-            color: #555;
-            white-space: pre-wrap;
-        }
-        .summary {
-            background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
-            border-left: 5px solid #3b82f6;
-        }
-        .content-section {
-            background: #f8f9fa;
-            border-left: 5px solid #a855f7;
-        }
-        .timeline {
-            background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-            border-left: 5px solid #10b981;
-        }
-        .budget {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border-left: 5px solid #f59e0b;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 60px;
-            padding-top: 30px;
-            border-top: 2px solid #e5e7eb;
-            color: #666;
-            font-size: 14px;
-        }
-        .icon {
+            justify-content: center;
             font-size: 24px;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+        .bullet-text {
+            flex: 1;
+            font-size: 24px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .highlight-slide {
+            padding: 80px;
+            background: linear-gradient(135deg, #faf5ff 0%, #fff0f5 100%);
+        }
+        .highlight-item {
+            display: flex;
+            align-items: start;
+            gap: 24px;
+            padding: 32px;
+            margin-bottom: 24px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+        .highlight-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 900;
+            flex-shrink: 0;
+        }
+        .highlight-text {
+            flex: 1;
+            font-size: 28px;
+            font-weight: 600;
+            line-height: 1.6;
+            color: #1a1a1a;
+        }
+        .closing-slide {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 80px;
+            color: white;
+            position: relative;
+        }
+        .closing-slide .icon {
+            font-size: 120px;
+            margin-bottom: 30px;
+        }
+        .closing-slide h2 {
+            font-size: 72px;
+            font-weight: 900;
+            margin-bottom: 40px;
+        }
+        .closing-slide p {
+            font-size: 32px;
+            line-height: 1.6;
+            margin-bottom: 60px;
+            opacity: 0.9;
+        }
+        .closing-slide .divider {
+            width: 120px;
+            height: 4px;
+            background: rgba(255,255,255,0.5);
+            margin: 0 auto 30px;
+        }
+        .closing-slide .brand {
+            font-size: 28px;
+            font-weight: 900;
+        }
+        .closing-slide .tagline {
+            font-size: 20px;
+            margin-top: 10px;
+        }
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .slide {
+                margin: 0;
+                box-shadow: none;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>✨ ${proposal.title}</h1>
-            <p>생성 날짜: ${new Date().toLocaleDateString("ko-KR")}</p>
-        </div>
+    ${proposal.slides
+      .map(
+        (slide, idx) => {
+          // content를 안전하게 문자열로 변환
+          const contentText = typeof slide.content === 'string'
+            ? slide.content
+            : Array.isArray(slide.content)
+            ? slide.content.join('\n')
+            : String(slide.content || '');
 
+          const lines = contentText.split("\n").filter(line => line.trim());
+          const icon = getSlideIcon(slide.type);
+
+          return `
+    <div class="slide">
         ${
-          proposal.executiveSummary
+          slide.type === "title"
             ? `
-        <div class="section summary">
-            <h2><span class="icon">📋</span> 요약</h2>
-            <p>${proposal.executiveSummary}</p>
-        </div>
-        `
-            : ""
-        }
-
-        ${proposal.sections
-          .map(
-            (section) => `
-        <div class="section content-section">
-            <h2><span class="icon">▶</span> ${section.heading}</h2>
-            <div>${section.content}</div>
-        </div>
-        `
-          )
-          .join("")}
-
-        ${
-          proposal.timeline
-            ? `
-        <div class="section timeline">
-            <h2><span class="icon">📅</span> 일정</h2>
-            <p>${proposal.timeline}</p>
-        </div>
-        `
-            : ""
-        }
-
-        ${
-          proposal.budget
-            ? `
-        <div class="section budget">
-            <h2><span class="icon">💰</span> 예산</h2>
-            <p>${proposal.budget}</p>
-        </div>
-        `
-            : ""
-        }
-
-        <div class="footer">
-            <p>본 제안서는 <strong>Wiz Works</strong> AI 시스템으로 자동 생성되었습니다</p>
-            <p style="margin-top: 10px; color: #999; font-size: 12px;">생성 시간: ${new Date().toLocaleString(
+        <div class="title-slide gradient-marketing">
+            <div class="icon">${icon}</div>
+            <h1>${slide.heading}</h1>
+            <p>${contentText}</p>
+            <div class="divider"></div>
+            <p style="font-size: 24px; opacity: 0.7;">${new Date().toLocaleDateString(
               "ko-KR"
             )}</p>
         </div>
+        `
+            : slide.type === "image-content"
+            ? `
+        <div class="highlight-slide">
+            <div class="header" style="display: flex; align-items: center; gap: 20px; margin-bottom: 60px;">
+                <div class="icon" style="font-size: 80px;">${icon}</div>
+                <h2 style="font-size: 56px; font-weight: 900; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${slide.heading}</h2>
+            </div>
+            ${lines
+              .map(
+                (line, lineIdx) => `
+            <div class="highlight-item">
+                <div class="highlight-icon">✓</div>
+                <div class="highlight-text">${line}</div>
+            </div>
+            `
+              )
+              .join("")}
+        </div>
+        `
+            : slide.type === "closing"
+            ? `
+        <div class="closing-slide gradient-creative">
+            <div class="icon">${icon}</div>
+            <h2>${slide.heading}</h2>
+            <p style="white-space: pre-line;">${contentText}</p>
+            <div class="divider"></div>
+            <div>
+                <div class="brand">Wiz Works</div>
+                <div class="tagline">AI로 업무를 혁신하세요</div>
+            </div>
+        </div>
+        `
+            : `
+        <div class="content-slide">
+            <div class="header">
+                <div class="icon">${icon}</div>
+                <h2>${slide.heading}</h2>
+            </div>
+            ${lines.length > 0
+              ? lines
+                  .map(
+                    (line, lineIdx) => `
+            <div class="bullet-item">
+                <div class="bullet-number">${lineIdx + 1}</div>
+                <div class="bullet-text">${line}</div>
+            </div>
+            `
+                  )
+                  .join("")
+              : `<div class="bullet-text">${contentText}</div>`}
+        </div>
+        `
+        }
+        <div class="slide-number">${idx + 1} / ${proposal.slides.length}</div>
     </div>
+    `;
+        }
+      )
+      .join("")}
 </body>
 </html>
     `;
@@ -229,9 +397,9 @@ export default function ProposalDownload({
       const imgData = canvas.toDataURL("image/png", 1.0);
 
       const pdf = new jsPDF({
-        orientation: "portrait",
+        orientation: "landscape",
         unit: "px",
-        format: "a4",
+        format: [1200, 675], // 16:9 비율
         compress: false,
       });
 
@@ -240,15 +408,12 @@ export default function ProposalDownload({
       const imgWidth = canvas.width / 4;
       const imgHeight = canvas.height / 4;
 
-      const ratio = Math.min(
-        (pdfWidth - 40) / imgWidth,
-        (pdfHeight - 40) / imgHeight
-      );
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
 
       const finalWidth = imgWidth * ratio;
       const finalHeight = imgHeight * ratio;
       const imgX = (pdfWidth - finalWidth) / 2;
-      const imgY = 20;
+      const imgY = (pdfHeight - finalHeight) / 2;
 
       let heightLeft = finalHeight;
       let position = imgY;
@@ -264,7 +429,7 @@ export default function ProposalDownload({
         "FAST"
       );
 
-      heightLeft -= pdfHeight - 40;
+      heightLeft -= pdfHeight;
 
       while (heightLeft > 0) {
         position = heightLeft - finalHeight + imgY;
@@ -279,7 +444,7 @@ export default function ProposalDownload({
           undefined,
           "FAST"
         );
-        heightLeft -= pdfHeight - 40;
+        heightLeft -= pdfHeight;
       }
 
       pdf.save(generateFileName("pdf"));
