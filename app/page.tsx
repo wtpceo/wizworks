@@ -64,29 +64,31 @@ export default function Home() {
             </div>
           </Link>
 
-          {/* 문서 분석 */}
-          <div className="group relative">
-            <div className="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 hover-lift cursor-pointer overflow-hidden border border-white/20 opacity-75 hover:opacity-100 transition-opacity">
-              {/* Coming Soon Badge */}
-              <div className="absolute top-4 right-4 px-3 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-white text-xs font-bold rounded-full shadow-lg">
-                Coming Soon
-              </div>
+          {/* AI 제안서 작성 */}
+          <Link href="/proposals" className="group">
+            <div className="relative bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 hover-lift cursor-pointer overflow-hidden border border-white/20">
+              {/* Gradient overlay on hover */}
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/0 to-pink-500/0 group-hover:from-orange-500/10 group-hover:to-pink-500/10 transition-all duration-300"></div>
 
               <div className="relative z-10">
-                <div className="gradient-creative w-20 h-20 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+                <div className="gradient-creative w-20 h-20 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
                   <FileText className="w-10 h-10 text-white" />
                 </div>
 
-                <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">
-                  문서 분석
+                <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white group-hover:text-gradient-primary transition-all">
+                  AI 제안서 작성
                 </h2>
 
-                <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  PDF, Excel 파일을 업로드하여 핵심 내용을 자동으로 요약하고 분석합니다
+                <p className="text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
+                  Claude와 대화하며 PRD를 작성하고 전문적인 제안서를 자동 생성합니다
                 </p>
+
+                <div className="flex items-center text-orange-600 font-semibold group-hover:translate-x-2 transition-transform">
+                  시작하기 <span className="ml-2">→</span>
+                </div>
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* 자동화 워크플로우 */}
           <div className="group relative">
