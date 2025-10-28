@@ -148,13 +148,13 @@ export default function ReportsPage() {
             <div className="p-4 bg-gradient-to-br from-pink-50 to-orange-50 dark:from-pink-900/20 dark:to-orange-900/20 rounded-xl">
               <h3 className="font-bold text-pink-600 dark:text-pink-400 mb-2">JSON 형식</h3>
               <code className="text-sm text-gray-700 dark:text-gray-300 break-words">
-                [{&quot;name&quot;: &quot;1월&quot;, &quot;value&quot;: 4000}]
+                {`[{"name": "1월", "value": 4000}]`}
               </code>
             </div>
             <div className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-xl">
               <h3 className="font-bold text-blue-600 dark:text-blue-400 mb-2">텍스트 형식</h3>
               <p className="text-sm text-gray-700 dark:text-gray-300">
-                &quot;지난달 매출은 1000만원이었고 이번달은 1200만원입니다.&quot;
+                지난달 매출은 1000만원이었고 이번달은 1200만원입니다.
               </p>
             </div>
           </div>
