@@ -92,7 +92,7 @@ export default function VisualizationChart({
 
       <div className="bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-xl p-4">
         <ResponsiveContainer width="100%" height={400}>
-          {chartType === "bar" && (
+          {chartType === "bar" ? (
             <BarChart data={data}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis
@@ -125,9 +125,7 @@ export default function VisualizationChart({
                 </linearGradient>
               </defs>
             </BarChart>
-          )}
-
-          {chartType === "line" && (
+          ) : chartType === "line" ? (
             <LineChart data={data}>
               <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
               <XAxis
@@ -157,9 +155,7 @@ export default function VisualizationChart({
                 activeDot={{ r: 8 }}
               />
             </LineChart>
-          )}
-
-          {chartType === "pie" && (
+          ) : (
             <PieChart>
               <Pie
                 data={data}
