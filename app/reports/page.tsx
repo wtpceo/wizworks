@@ -8,11 +8,21 @@ import VisualizationChart from "@/components/VisualizationChart";
 import InsightsPanel from "@/components/InsightsPanel";
 import DownloadReport from "@/components/DownloadReport";
 
+interface ReportMetadata {
+  companyName: string;
+  department: string;
+  authorName: string;
+  targetCompany: string;
+  reportTitle: string;
+  reportPeriod?: string;
+}
+
 interface AnalysisResult {
   insights: string[];
   summary: string;
   chartData: Array<{ name: string; value: number }>;
   recommendations: string[];
+  metadata?: ReportMetadata;
 }
 
 export default function ReportsPage() {
@@ -21,7 +31,12 @@ export default function ReportsPage() {
   const [error, setError] = useState<string | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
 
-  const handleDataSubmit = async (data: string, prompt: string) => {
+  const handleDataSubmit = async (
+    data: string,
+    prompt: string,
+    images: string[],
+    metadata: ReportMetadata
+  ) => {
     setIsLoading(true);
     setError(null);
 
@@ -31,7 +46,7 @@ export default function ReportsPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data, prompt }),
+        body: JSON.stringify({ data, prompt, images, metadata }),
       });
 
       if (!response.ok) {
@@ -40,7 +55,7 @@ export default function ReportsPage() {
       }
 
       const analysisResult = await response.json();
-      setResult(analysisResult);
+      setResult({ ...analysisResult, metadata });
     } catch (err) {
       setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
       console.error("Analysis error:", err);

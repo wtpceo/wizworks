@@ -5,6 +5,15 @@ import { Download, FileText, FileType } from "lucide-react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
+interface ReportMetadata {
+  companyName: string;
+  department: string;
+  authorName: string;
+  targetCompany: string;
+  reportTitle: string;
+  reportPeriod?: string;
+}
+
 interface DownloadReportProps {
   reportRef: React.RefObject<HTMLDivElement>;
   data: {
@@ -12,6 +21,7 @@ interface DownloadReportProps {
     summary: string;
     chartData: Array<{ name: string; value: number }>;
     recommendations: string[];
+    metadata?: ReportMetadata;
   };
 }
 
@@ -22,7 +32,10 @@ export default function DownloadReport({ reportRef, data }: DownloadReportProps)
     const now = new Date();
     const dateStr = now.toISOString().split('T')[0];
     const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '-');
-    return `wiz-works-report-${dateStr}-${timeStr}.${extension}`;
+    const title = data.metadata?.reportTitle
+      ? data.metadata.reportTitle.replace(/[^a-zA-Z0-9가-힣\s]/g, '').replace(/\s+/g, '-')
+      : 'report';
+    return `${title}-${dateStr}-${timeStr}.${extension}`;
   };
 
   const downloadHTML = () => {
@@ -54,7 +67,6 @@ export default function DownloadReport({ reportRef, data }: DownloadReportProps)
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
         .header {
-            text-align: center;
             margin-bottom: 40px;
             padding-bottom: 20px;
             border-bottom: 3px solid #667eea;
@@ -65,10 +77,33 @@ export default function DownloadReport({ reportRef, data }: DownloadReportProps)
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 10px;
+            text-align: center;
         }
         .header p {
             color: #666;
             font-size: 18px;
+            text-align: center;
+        }
+        .metadata {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .metadata-item {
+            display: flex;
+            gap: 10px;
+        }
+        .metadata-label {
+            font-weight: bold;
+            color: #667eea;
+            min-width: 100px;
+        }
+        .metadata-value {
+            color: #333;
         }
         .section {
             margin: 30px 0;
@@ -172,8 +207,38 @@ export default function DownloadReport({ reportRef, data }: DownloadReportProps)
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎯 Wiz Works</h1>
+            <h1>🎯 ${data.metadata?.reportTitle || 'Wiz Works 분석 보고서'}</h1>
             <p>AI 기반 데이터 분석 보고서</p>
+            ${data.metadata ? `
+            <div class="metadata">
+                <div class="metadata-item">
+                    <span class="metadata-label">회사명:</span>
+                    <span class="metadata-value">${data.metadata.companyName}</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">부서명:</span>
+                    <span class="metadata-value">${data.metadata.department}</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">작성자:</span>
+                    <span class="metadata-value">${data.metadata.authorName}</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">대상 업체:</span>
+                    <span class="metadata-value">${data.metadata.targetCompany}</span>
+                </div>
+                ${data.metadata.reportPeriod ? `
+                <div class="metadata-item">
+                    <span class="metadata-label">보고 기간:</span>
+                    <span class="metadata-value">${data.metadata.reportPeriod}</span>
+                </div>
+                ` : ''}
+                <div class="metadata-item">
+                    <span class="metadata-label">작성일:</span>
+                    <span class="metadata-value">${new Date().toLocaleDateString('ko-KR')}</span>
+                </div>
+            </div>
+            ` : ''}
         </div>
 
         ${data.summary ? `

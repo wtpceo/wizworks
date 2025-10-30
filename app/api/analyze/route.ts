@@ -3,11 +3,12 @@ import { analyzeData } from "@/lib/claude";
 
 export async function POST(request: NextRequest) {
   try {
-    const { data, prompt } = await request.json();
+    const { data, prompt, images } = await request.json();
 
-    if (!data) {
+    // 데이터 또는 이미지 중 하나는 필수
+    if (!data && (!images || images.length === 0)) {
       return NextResponse.json(
-        { error: "데이터가 필요합니다." },
+        { error: "데이터 또는 이미지가 필요합니다." },
         { status: 400 }
       );
     }
@@ -20,8 +21,9 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await analyzeData(
-      data,
-      prompt || "주요 인사이트를 찾아주세요."
+      data || "",
+      prompt || "주요 트렌드와 인사이트를 찾아주세요.",
+      images
     );
 
     return NextResponse.json(result);
