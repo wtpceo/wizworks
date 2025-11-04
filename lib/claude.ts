@@ -15,7 +15,7 @@ export async function analyzeData(
     // 메시지 컨텐츠 구성
     const contentParts: Array<
       | { type: "text"; text: string }
-      | { type: "image"; source: { type: "base64"; media_type: string; data: string } }
+      | { type: "image"; source: { type: "base64"; media_type: "image/jpeg" | "image/png" | "image/gif" | "image/webp"; data: string } }
     > = [];
 
     // 텍스트 프롬프트 추가
@@ -50,8 +50,8 @@ export async function analyzeData(
           const base64Data = matches[2];
 
           // 지원되는 이미지 타입인지 확인
-          const supportedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-          if (!supportedTypes.includes(mediaType)) {
+          const supportedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"] as const;
+          if (!supportedTypes.includes(mediaType as any)) {
             console.warn(`Unsupported image type: ${mediaType} for image ${index + 1}`);
             return;
           }
@@ -60,7 +60,7 @@ export async function analyzeData(
             type: "image",
             source: {
               type: "base64",
-              media_type: mediaType,
+              media_type: mediaType as "image/jpeg" | "image/png" | "image/gif" | "image/webp",
               data: base64Data,
             },
           });
