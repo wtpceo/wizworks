@@ -42,12 +42,20 @@ export async function analyzeData(
 
     // 이미지 추가
     if (images && images.length > 0) {
-      images.forEach((imageBase64) => {
+      images.forEach((imageBase64, index) => {
         // base64 데이터에서 미디어 타입 추출
         const matches = imageBase64.match(/^data:([^;]+);base64,(.+)$/);
         if (matches) {
           const mediaType = matches[1];
           const base64Data = matches[2];
+
+          // 지원되는 이미지 타입인지 확인
+          const supportedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+          if (!supportedTypes.includes(mediaType)) {
+            console.warn(`Unsupported image type: ${mediaType} for image ${index + 1}`);
+            return;
+          }
+
           contentParts.push({
             type: "image",
             source: {
@@ -56,6 +64,8 @@ export async function analyzeData(
               data: base64Data,
             },
           });
+        } else {
+          console.warn(`Invalid base64 format for image ${index + 1}`);
         }
       });
     }

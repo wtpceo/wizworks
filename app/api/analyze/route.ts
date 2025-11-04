@@ -20,17 +20,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    console.log("Analysis request:", {
+      hasData: !!data,
+      imageCount: images?.length || 0,
+      prompt: prompt || "주요 트렌드와 인사이트를 찾아주세요.",
+    });
+
     const result = await analyzeData(
       data || "",
       prompt || "주요 트렌드와 인사이트를 찾아주세요.",
       images
     );
 
+    console.log("Analysis completed successfully");
     return NextResponse.json(result);
   } catch (error) {
     console.error("Analysis error:", error);
+
+    // 에러 메시지를 더 자세히 표시
+    const errorMessage = error instanceof Error ? error.message : "알 수 없는 오류가 발생했습니다.";
+
     return NextResponse.json(
-      { error: "분석 중 오류가 발생했습니다." },
+      { error: `분석 중 오류가 발생했습니다: ${errorMessage}` },
       { status: 500 }
     );
   }
