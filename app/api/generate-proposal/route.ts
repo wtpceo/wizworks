@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
 반드시 유효한 JSON 형식으로만 응답하세요.`;
 
     const response = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-3-5-sonnet-20240620",
       max_tokens: 8192,
       system: systemPrompt,
       messages: [

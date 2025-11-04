@@ -71,7 +71,7 @@ export async function analyzeData(
     }
 
     const message = await anthropic.messages.create({
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-3-5-sonnet-20240620",
       max_tokens: 4096,
       messages: [
         {
@@ -110,7 +110,7 @@ export async function generateReport(
   };
 
   return anthropic.messages.stream({
-    model: "claude-3-5-sonnet-20241022",
+    model: "claude-3-5-sonnet-20240620",
     max_tokens: 4096,
     messages: [
       {
