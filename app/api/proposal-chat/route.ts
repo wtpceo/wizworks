@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
 - 한국어로 응답하세요`;
 
     const response = await anthropic.messages.create({
-      model: "claude-3-sonnet-20240229",
+      model: "claude-sonnet-4-5-20250929",
       max_tokens: 4096,
       system: systemPrompt,
       messages: claudeMessages,
